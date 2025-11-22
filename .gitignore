@@ -1,0 +1,6 @@
+.idea
+
+# Build stuff
+node_modules/
+dist/
+dist_electron/

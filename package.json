@@ -1,0 +1,52 @@
+{
+  "name": "randomwallpaper-windows",
+  "author": "LM-Firefly",
+  "description": "This is an experimental Electron adaptation of the GNOME RandomWallpaper extension for Windows.",
+  "version": "0.0.1",
+  "private": true,
+  "main": "dist/main.js",
+  "scripts": {
+    "build": "npm run build:renderer && tsc",
+    "start": "npm run build && electron .",
+    "dev": "concurrently \"vite\" \"tsc -w\" \"wait-on http://localhost:5173 && electron .\"",
+    "dev:renderer": "vite",
+    "build:renderer": "vite build",
+    "package:portable": "npm run build && electron-builder --win portable --x64"
+  },
+  "devDependencies": {
+    "electron": "^39.2.4",
+    "typescript": "^5.9.3",
+    "@types/node-fetch": "^2.6.13",
+    "vite": "^7.2.4",
+    "@vitejs/plugin-vue": "^6.0.2",
+    "unplugin-auto-import": "^20.3.0",
+    "unplugin-vue-components": "^30.0.0",
+    "concurrently": "^9.2.1",
+    "electron-builder": "^26.0.12",
+    "wait-on": "^9.0.3"
+  },
+  "dependencies": {
+    "vue": "^3.5.25",
+    "element-plus": "^2.11.9",
+    "@element-plus/icons-vue": "^2.3.2",
+    "node-fetch": "^3.3.2",
+    "wallpaper": "^7.2.1"
+  },
+  "build": {
+    "appId": "com.randomwallpaper.windows",
+    "productName": "RandomWallpaper",
+    "directories": { "output": "dist_electron" },
+    "files": ["dist/**/*", "package.json", "node_modules/**/*", "data/**/*"],
+    "win": {
+      "target": [
+        {
+          "target": "portable",
+          "arch": ["x64"]
+        }
+      ]
+    },
+    "extraResources": [
+      { "from": "data", "to": "data", "filter": ["**/*"] }
+    ]
+  }
+}
