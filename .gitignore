@@ -1,0 +1,5 @@
+.idea
+
+# Build stuff
+node_modules/
+dist/
