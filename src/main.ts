@@ -25,6 +25,8 @@ function _schedulerStart(minutes: number) {
     } catch (err) {
       console.error('Scheduler error', err)
     }
+    // Also run cleanup periodically to remove old temp files
+    try { historyController.cleanupTempFiles() } catch (e) {}
   }, Math.max(1, minutes) * 60 * 1000)
 }
 
@@ -33,6 +35,8 @@ async function performRandomize() {
   if (!item || (!(item.image || item.path))) throw new Error('No image returned from sources')
   const tmp = await exports.randomizeDownloadAndSet(item)
   try { historyController.saveFileFromPath(tmp, _normalizeToAbsolute(item && (item.image || item.path) || ''), null, (choice as string) || item?.source) } catch (err) {}
+  // Cleanup old temporary files
+  try { historyController.cleanupTempFiles() } catch (e) {}
   return { source: choice, path: tmp }
 }
 
@@ -45,7 +49,13 @@ function createTrayIfNeeded() {
     tray = new Tray(img)
     const menu = Menu.buildFromTemplate([
       { label: 'Show Window', click: () => { if (mainWindow) { mainWindow.show(); mainWindow.focus() } } },
-      { label: 'Next Wallpaper', click: async () => { try { await performRandomize(); } catch (err) { console.error('Tray -> next failed', err) } } },
+      { label: 'Next Wallpaper', click: async () => { 
+        try { 
+          await performRandomize(); 
+          // Cleanup old temporary files
+          try { historyController.cleanupTempFiles() } catch (e) {}
+        } catch (err) { console.error('Tray -> next failed', err) } 
+      } },
       { type: 'separator' },
       { label: 'Exit', click: () => { quittingByTray = true; app.quit() } },
     ])
@@ -113,7 +123,11 @@ async function trySourcesForScheduler(): Promise<{choice: string, item: any}> {
           collections: SettingsStore.getString('unsplash', 'collections') || undefined,
         }
         const res = await fetchUnsplashRandom(opts)
-        if (res && res.length > 0 && res[0].image) return {choice, item: res[0]}
+        if (res && res.length > 0 && res[0].image) {
+          // Cleanup old temporary files periodically
+          historyController.cleanupTempFiles()
+          return {choice, item: res[0]}
+        }
         throw new Error('Unsplash returned no image')
       }
       case 'reddit': {
@@ -125,7 +139,11 @@ async function trySourcesForScheduler(): Promise<{choice: string, item: any}> {
           minHeight: SettingsStore.getInt('reddit', 'min-height'),
         }
         const res = await fetchRedditRandom(opts)
-        if (res && res.length > 0 && res[0].image) return {choice, item: res[0]}
+        if (res && res.length > 0 && res[0].image) {
+          // Cleanup old temporary files periodically
+          historyController.cleanupTempFiles()
+          return {choice, item: res[0]}
+        }
         throw new Error('Reddit returned no image')
       }
       case 'wallhaven': {
@@ -143,7 +161,11 @@ async function trySourcesForScheduler(): Promise<{choice: string, item: any}> {
           seed: SettingsStore.getString('wallhaven', 'seed'),
         }
         const res = await fetchWallhavenRandom(opts)
-        if (res && res.length > 0 && res[0].image) return {choice, item: res[0]}
+        if (res && res.length > 0 && res[0].image) {
+          // Cleanup old temporary files periodically
+          historyController.cleanupTempFiles()
+          return {choice, item: res[0]}
+        }
         throw new Error('Wallhaven returned no image')
       }
       case 'localFolder': {
@@ -151,7 +173,11 @@ async function trySourcesForScheduler(): Promise<{choice: string, item: any}> {
         if (!dir) throw new Error('No folder for local folder')
         const { getRandomFromLocalFolder } = await import('./adapter/localFolder.js')
         const paths = await getRandomFromLocalFolder(dir, 1)
-        if (paths && paths.length > 0) return {choice, item: { image: paths[0], source: dir }}
+        if (paths && paths.length > 0) {
+          // Cleanup old temporary files periodically
+          historyController.cleanupTempFiles()
+          return {choice, item: { image: paths[0], source: dir }}
+        }
         throw new Error('Local folder returned no files')
       }
       case 'genericJson': {
@@ -162,14 +188,22 @@ async function trySourcesForScheduler(): Promise<{choice: string, item: any}> {
           imagePrefix: SettingsStore.getString('genericJson', 'image-prefix'),
         }
         const res = await fetchGenericJsonRandom(opts)
-        if (res && res.length > 0 && res[0].image) return {choice, item: res[0]}
+        if (res && res.length > 0 && res[0].image) {
+          // Cleanup old temporary files periodically
+          historyController.cleanupTempFiles()
+          return {choice, item: res[0]}
+        }
         throw new Error('Generic JSON returned no image')
       }
       case 'urlSource': {
         const { fetchUrlSource } = await import('./adapter/urlSource.js')
         const opts = { imageUrl: SettingsStore.getString('urlSource', 'image-url'), domain: SettingsStore.getString('urlSource', 'domain') }
         const res = await fetchUrlSource(opts)
-        if (res && res.length > 0 && res[0].image) return {choice, item: res[0]}
+        if (res && res.length > 0 && res[0].image) {
+          // Cleanup old temporary files periodically
+          historyController.cleanupTempFiles()
+          return {choice, item: res[0]}
+        }
         throw new Error('URL Source returned no image')
       }
       default:
@@ -246,6 +280,10 @@ app.on('ready', () => {
   if (enabled) {
     _schedulerStart(minutes)
     console.log('Scheduler started from saved settings', minutes)
+  }
+  // Cleanup old temporary files on startup
+  try { historyController.cleanupTempFiles() } catch (e) {
+    console.error('Startup temp file cleanup failed', e)
   }
 })
 app.on('window-all-closed', () => { if (process.platform !== 'darwin') app.quit() })
@@ -425,6 +463,8 @@ async function downloadFileToTemp(imageUrl: string, preferredName?: string): Pro
     const ext = mime && mime.includes('/') ? '.' + mime.split('/')[1] : '.jpg'
     const tmp = makeTmpName(preferredName, ext)
     fs.writeFileSync(tmp, buf)
+    // Clean up buffer reference to free memory
+    (buf as any) = null
     return tmp
   }
 
@@ -477,7 +517,11 @@ async function downloadFileToTemp(imageUrl: string, preferredName?: string): Pro
       if (!r.body) return reject(new Error('No response body'))
       r.body.pipe(dest)
       r.body.on('error', reject)
-      dest.on('finish', resolve)
+      dest.on('finish', () => {
+        // Clean up response body to free memory
+        r.body?.destroy?.()
+        resolve()
+      })
       dest.on('error', reject)
     })
     return tmp
@@ -493,6 +537,7 @@ async function downloadFileToTemp(imageUrl: string, preferredName?: string): Pro
         res.pipe(file)
         res.on('end', () => file.close(() => resolve()))
         res.on('error', reject)
+        req.on('error', reject)
       })
       req.on('error', reject)
     })

@@ -128,6 +128,26 @@ class HistoryController {
     }
   }
 
+  // Clean up temporary files that are no longer in history
+  cleanupTempFiles() {
+    try {
+      const files = fs.readdirSync(this._dir)
+      for (const file of files) {
+        const fullPath = path.join(this._dir, file)
+        const isUsed = this.history.some(entry => entry.path === fullPath)
+        if (!isUsed) {
+          try {
+            fs.unlinkSync(fullPath)
+          } catch (e) {
+            // file might be in use or already deleted
+          }
+        }
+      }
+    } catch (e) {
+      // directory might not exist
+    }
+  }
+
   // Save a buffer or copy file to history dir and return the path and entry
   private _ensureUniqueName(name: string) {
     const base = path.basename(name)
