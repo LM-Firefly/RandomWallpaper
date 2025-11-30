@@ -1,0 +1,74 @@
+name: Build & Release (portable)
+
+permissions:
+  contents: write
+
+on:
+  push:
+    branches: [ main ]
+
+concurrency:
+  group: build-release-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-windows:
+    name: Build Windows portable and publish release draft
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          cache: 'npm'
+
+      - name: Install dependencies
+        shell: pwsh
+        run: |
+            npm install
+
+      - name: Build renderer + compile TS
+        run: npm run build
+
+      - name: Package (electron-builder portable/x64 and zip)
+        env:
+          # optional code signing secrets if available
+          CSC_LINK: ${{ secrets.CSC_LINK }}
+          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
+        run: npm run package:portable:zip
+
+      - name: Prepare release ZIP (use portable zip if present)
+        shell: pwsh
+        run: |
+          if (Test-Path Random_Wallpaper.zip) { Remove-Item Random_Wallpaper.zip -Force -ErrorAction Ignore }
+          $portable = Join-Path dist_electron 'RandomWallpaper-portable.zip'
+          if (Test-Path $portable) {
+            Copy-Item -Path $portable -Destination Random_Wallpaper.zip -Force
+          } elseif (Test-Path (Join-Path dist_electron 'win-unpacked')) {
+            Compress-Archive -Force -Path (Join-Path dist_electron 'win-unpacked/*') -DestinationPath Random_Wallpaper.zip
+          } elseif (Test-Path dist_electron) {
+            Compress-Archive -Force -Path dist_electron/* -DestinationPath Random_Wallpaper.zip
+          } else {
+            Write-Error 'dist_electron not found: cannot create release ZIP'
+          }
+
+      - name: Create release tag
+        id: make_tag
+        shell: bash
+        run: |
+          TAG=ci-build-${GITHUB_SHA:0:7}
+          echo "TAG=$TAG" >> $GITHUB_ENV
+
+      - name: Create GitHub release (draft, prerelease)
+        id: create_release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.TAG }}
+          name: Build ${{ env.TAG }}
+          prerelease: true
+          files: Random_Wallpaper.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

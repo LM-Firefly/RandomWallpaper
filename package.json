@@ -11,7 +11,8 @@
     "dev": "concurrently \"vite\" \"tsc -w\" \"wait-on http://localhost:5173 && electron .\"",
     "dev:renderer": "vite",
     "build:renderer": "vite build",
-    "package:portable": "npm run build && electron-builder --win portable --x64"
+    "package:portable": "npm run build && electron-builder --win portable --x64",
+    "package:portable:zip": "npm run package:portable && node ./scripts/zip-win-unpacked.js"
   },
   "devDependencies": {
     "electron": "^39.2.4",
@@ -23,7 +24,8 @@
     "unplugin-vue-components": "^30.0.0",
     "concurrently": "^9.2.1",
     "electron-builder": "^26.0.12",
-    "wait-on": "^9.0.3"
+    "wait-on": "^9.0.3",
+    "archiver": "^7.0.1"
   },
   "dependencies": {
     "vue": "^3.5.25",
