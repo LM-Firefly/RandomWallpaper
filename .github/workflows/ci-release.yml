@@ -42,6 +42,7 @@ jobs:
 
       - name: Create release tag
         id: make_tag
+        shell: bash
         run: |
           TAG=ci-build-${GITHUB_SHA:0:7}
           echo "TAG=$TAG" >> $GITHUB_ENV
