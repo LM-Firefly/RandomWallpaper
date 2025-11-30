@@ -1,0 +1,66 @@
+name: Build & Release (portable)
+
+on:
+  push:
+    branches: [ main ]
+
+concurrency:
+  group: build-release-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-windows:
+    name: Build Windows portable and publish release draft
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build renderer + compile TS
+        run: npm run build
+
+      - name: Package (electron-builder portable/x64)
+        env:
+          # optional code signing secrets if available
+          CSC_LINK: ${{ secrets.CSC_LINK }}
+          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
+        run: npm run package:portable
+
+      - name: Create zip of dist_electron output
+        run: |
+          if (Test-Path dist_electron) { Remove-Item -Recurse -Force release_artifacts.zip -ErrorAction Ignore }
+          Compress-Archive -Force -Path dist_electron/* -DestinationPath release_artifacts.zip
+
+      - name: Create release tag
+        id: make_tag
+        run: |
+          TAG=ci-build-${GITHUB_SHA:0:7}
+          echo "TAG=$TAG" >> $GITHUB_ENV
+
+      - name: Create GitHub release (draft, prerelease)
+        id: create_release
+        uses: actions/create-release@v1
+        with:
+          tag_name: ${{ env.TAG }}
+          release_name: Build ${{ env.TAG }}
+          draft: true
+          prerelease: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload release artifact
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./release_artifacts.zip
+          asset_name: release_artifacts.zip
+          asset_content_type: application/zip
