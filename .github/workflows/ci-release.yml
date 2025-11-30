@@ -14,12 +14,12 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
-          node-version: '18'
+          node-version: '24'
           cache: 'npm'
 
       - name: Install dependencies
@@ -48,19 +48,12 @@ jobs:
 
       - name: Create GitHub release (draft, prerelease)
         id: create_release
-        uses: actions/create-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ env.TAG }}
-          release_name: Build ${{ env.TAG }}
+          name: Build ${{ env.TAG }}
           draft: true
           prerelease: true
+          files: release_artifacts.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Upload release artifact
-        uses: actions/upload-release-asset@v1
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./release_artifacts.zip
-          asset_name: release_artifacts.zip
-          asset_content_type: application/zip
