@@ -40,8 +40,8 @@ jobs:
 
       - name: Create zip of dist_electron output
         run: |
-          if (Test-Path dist_electron) { Remove-Item -Recurse -Force release_artifacts.zip -ErrorAction Ignore }
-          Compress-Archive -Force -Path dist_electron/* -DestinationPath release_artifacts.zip
+          if (Test-Path dist_electron) { Remove-Item -Recurse -Force Random_Wallpaper.zip -ErrorAction Ignore }
+          Compress-Archive -Force -Path dist_electron/* -DestinationPath Random_Wallpaper.zip
 
       - name: Create release tag
         id: make_tag
@@ -56,8 +56,7 @@ jobs:
         with:
           tag_name: ${{ env.TAG }}
           name: Build ${{ env.TAG }}
-          draft: true
           prerelease: true
-          files: release_artifacts.zip
+          files: Random_Wallpaper.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
