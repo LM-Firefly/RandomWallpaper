@@ -4,6 +4,7 @@ import { BaseAdapter } from './baseAdapter.js';
 import { GenericJsonAdapter } from './genericJson.js';
 import { LocalFolderAdapter } from './localFolder.js';
 import { PalaceMuseumAdapter } from './palaceMuseum.js';
+import { WallHallaAdapter } from './wallhalla.js';
 import { WallHereAdapter } from './wallhere.js';
 import { RedditAdapter } from './reddit.js';
 import { UnsplashAdapter } from './unsplash.js';
@@ -29,6 +30,8 @@ export function createAdapter(meta: SourceMeta): BaseAdapter {
             return new PalaceMuseumAdapter(meta);
         case SourceType.WALLHERE:
             return new WallHereAdapter(meta);
+        case SourceType.WALLHALLA:
+            return new WallHallaAdapter(meta);
         default:
             // Sensible fallback: unknown type → empty Wallhaven query.
             return new WallhavenAdapter({ ...meta, type: SourceType.WALLHAVEN });

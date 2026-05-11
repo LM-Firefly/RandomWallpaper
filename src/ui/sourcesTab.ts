@@ -24,6 +24,7 @@ const NEW_TYPES: Array<{ value: SourceType; label: string }> = [
     { value: SourceType.UNSPLASH, label: 'Unsplash' },
     { value: SourceType.PALACE_MUSEUM, label: 'Palace Museum' },
     { value: SourceType.WALLHERE, label: 'WallHere' },
+    { value: SourceType.WALLHALLA, label: 'Wallhalla' },
     { value: SourceType.GENERIC_JSON, label: 'Generic JSON' },
     { value: SourceType.STATIC_URL, label: 'Static URL' },
     { value: SourceType.LOCAL_FOLDER, label: 'Local Folder' },

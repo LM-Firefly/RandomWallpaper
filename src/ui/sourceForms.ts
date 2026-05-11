@@ -46,6 +46,8 @@ export function buildForm(meta: SourceMeta): HTMLElement {
             return palaceMuseumForm(meta);
         case SourceType.WALLHERE:
             return wallHereForm(meta);
+        case SourceType.WALLHALLA:
+            return wallhallaForm(meta);
         case SourceType.GENERIC_JSON:
             return genericJsonForm(meta);
         case SourceType.STATIC_URL:
@@ -179,6 +181,24 @@ function wallHereForm(meta: SourceMeta): HTMLElement {
         fieldRow(t('Max detail pages to scan'), bindNumber(c, 'max-detail-pages', 12)),
         fieldRow(t('Custom image regex (optional)'), bindString(c, 'image-regex')),
         fieldRow(t('Author name'), bindString(c, 'author-name', 'WallHere')),
+    );
+}
+
+function wallhallaForm(meta: SourceMeta): HTMLElement {
+    const c = meta.config;
+    return el(
+        'div',
+        {},
+        el('p', { class: 'muted' }, t('Wallhalla source note')),
+        fieldRow(t('Keyword'), bindString(c, 'keyword', 'abstract')),
+        fieldRow(
+            t('Search URL template'),
+            bindString(c, 'search-url-template', 'https://wallhalla.com/search?q={q}'),
+        ),
+        fieldRow(t('Search URL (override, optional)'), bindString(c, 'search-url')),
+        fieldRow(t('Max detail pages to scan'), bindNumber(c, 'max-detail-pages', 12)),
+        fieldRow(t('Custom image regex (optional)'), bindString(c, 'image-regex')),
+        fieldRow(t('Author name'), bindString(c, 'author-name', 'Wallhalla')),
     );
 }
 

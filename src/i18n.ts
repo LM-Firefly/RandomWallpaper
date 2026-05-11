@@ -64,6 +64,8 @@ const ZH_CN: Dict = {
         '故宫源说明：默认抓取“皇家建筑”页面并提取图片链接；若页面结构变更，可调整页面地址或自定义正则。',
     'WallHere source note':
         'WallHere 源说明：从搜索页提取壁纸详情页链接，随机访问若干详情页并获取 get.wallhere.com 上的原图地址（避免拿到缩略图）。可调整「最多扫描详情页数」控制请求量。',
+    'Wallhalla source note':
+        'Wallhalla 源说明：从搜索/列表页提取壁纸详情页链接，随机访问若干详情页并提取真实的 storage 图片地址（自动识别 png/jpg/webp）。可调整「最多扫描详情页数」控制请求量。',
     'Keyword': '关键词',
     'Search URL template': '搜索地址模板',
     'Search URL (override, optional)': '搜索地址（覆盖，可选）',
@@ -163,6 +165,8 @@ const DE: Dict = {
         'Palace-Museum-Hinweis: Standardmäßig wird die Seite „Royal Architecture“ geparst und Bild-Links extrahiert. Bei Layout-Änderungen bitte URL oder RegEx anpassen.',
     'WallHere source note':
         'WallHere-Hinweis: Aus der Suchseite werden Detailseiten-Links extrahiert; eine zufällige Auswahl wird besucht, um die echten Vollbild-URLs auf get.wallhere.com zu erhalten (statt Thumbnails). Die Anzahl der Detailseiten kann angepasst werden.',
+    'Wallhalla source note':
+        'Wallhalla-Hinweis: Aus der Such-/Übersichtsseite werden Detailseiten-Links extrahiert; eine zufällige Auswahl wird besucht, um die echten Storage-URLs (png/jpg/webp) zu finden. Die Anzahl der Detailseiten kann angepasst werden, um Netzwerklast zu steuern.',
     'Keyword': 'Stichwort',
     'Search URL template': 'Such-URL-Vorlage',
     'Search URL (override, optional)': 'Such-URL (Override, optional)',
