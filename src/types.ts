@@ -12,6 +12,7 @@ export const enum SourceType {
     PALACE_MUSEUM = 6,
     WALLHERE = 7,
     WALLHALLA = 8,
+    PEXELS = 9,
 }
 
 export const SOURCE_TYPE_LABEL: Record<number, string> = {
@@ -24,6 +25,7 @@ export const SOURCE_TYPE_LABEL: Record<number, string> = {
     [SourceType.PALACE_MUSEUM]: '故宫博物院',
     [SourceType.WALLHERE]: 'WallHere',
     [SourceType.WALLHALLA]: 'Wallhalla',
+    [SourceType.PEXELS]: 'Pexels',
 };
 
 export interface SourceMeta {

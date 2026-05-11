@@ -48,6 +48,8 @@ export function buildForm(meta: SourceMeta): HTMLElement {
             return wallHereForm(meta);
         case SourceType.WALLHALLA:
             return wallhallaForm(meta);
+        case SourceType.PEXELS:
+            return pexelsForm(meta);
         case SourceType.GENERIC_JSON:
             return genericJsonForm(meta);
         case SourceType.STATIC_URL:
@@ -199,6 +201,51 @@ function wallhallaForm(meta: SourceMeta): HTMLElement {
         fieldRow(t('Max detail pages to scan'), bindNumber(c, 'max-detail-pages', 12)),
         fieldRow(t('Custom image regex (optional)'), bindString(c, 'image-regex')),
         fieldRow(t('Author name'), bindString(c, 'author-name', 'Wallhalla')),
+    );
+}
+
+function pexelsForm(meta: SourceMeta): HTMLElement {
+    const c = meta.config;
+    return el(
+        'div',
+        {},
+        el('p', { class: 'muted' }, t('Pexels source note')),
+        fieldRow(t('API Key'), bindString(c, 'api-key')),
+        fieldRow(t('Use curated feed (ignore query)'), bindBool(c, 'use-curated', false)),
+        fieldRow(t('Query'), bindString(c, 'query', 'wallpaper')),
+        fieldRow(
+            t('Orientation'),
+            select<string>(
+                [
+                    { value: '', label: t('Any') },
+                    { value: 'landscape', label: t('Landscape') },
+                    { value: 'portrait', label: t('Portrait') },
+                    { value: 'square', label: t('Square') },
+                ],
+                String(c['orientation'] ?? 'landscape'),
+                (v) => {
+                    c['orientation'] = v;
+                },
+            ),
+        ),
+        fieldRow(
+            t('Minimum size'),
+            select<string>(
+                [
+                    { value: '', label: t('Any') },
+                    { value: 'large', label: t('Large (24MP+)') },
+                    { value: 'medium', label: t('Medium (12MP+)') },
+                    { value: 'small', label: t('Small (4MP+)') },
+                ],
+                String(c['size'] ?? 'large'),
+                (v) => {
+                    c['size'] = v;
+                },
+            ),
+        ),
+        fieldRow(t('Color (hex or name, optional)'), bindString(c, 'color')),
+        fieldRow(t('Results per page'), bindNumber(c, 'per-page', 40)),
+        fieldRow(t('Max page (random within)'), bindNumber(c, 'max-page', 20)),
     );
 }
 
