@@ -8,7 +8,7 @@ TypeScript frontend hosting the original adapters.
 ## Features
 
 * Tray-resident application; settings window is hidden by default.
-* Adapters: Wallhaven, Reddit, Unsplash, Palace Museum, Generic JSON, Static URL, Local Folder.
+* Adapters: Wallhaven, Reddit, Unsplash, Palace Museum, WallHere, Generic JSON, Static URL, Local Folder.
 * Per-monitor wallpapers (`IDesktopWallpaper::SetWallpaper`).
 * Scaling modes: Fill / Fit / Stretch / Tile / Center / Span.
 * Auto-fetch timer with surpassed-interval handling.

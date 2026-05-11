@@ -10,6 +10,7 @@ export const enum SourceType {
     LOCAL_FOLDER = 4,
     STATIC_URL = 5,
     PALACE_MUSEUM = 6,
+    WALLHERE = 7,
 }
 
 export const SOURCE_TYPE_LABEL: Record<number, string> = {
@@ -20,6 +21,7 @@ export const SOURCE_TYPE_LABEL: Record<number, string> = {
     [SourceType.LOCAL_FOLDER]: 'Local Folder',
     [SourceType.STATIC_URL]: 'Static URL',
     [SourceType.PALACE_MUSEUM]: '故宫博物院',
+    [SourceType.WALLHERE]: 'WallHere',
 };
 
 export interface SourceMeta {
