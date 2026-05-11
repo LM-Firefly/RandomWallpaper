@@ -4,6 +4,7 @@
 
 import { open as openDialog } from '@tauri-apps/plugin-dialog';
 import { SourceType, type SourceMeta } from './../types.js';
+import { t } from './../i18n.js';
 import { checkbox, el, fieldRow, input, select } from './dom.js';
 
 type Config = SourceMeta['config'];
@@ -41,6 +42,8 @@ export function buildForm(meta: SourceMeta): HTMLElement {
             return redditForm(meta);
         case SourceType.UNSPLASH:
             return unsplashForm(meta);
+        case SourceType.PALACE_MUSEUM:
+            return palaceMuseumForm(meta);
         case SourceType.GENERIC_JSON:
             return genericJsonForm(meta);
         case SourceType.STATIC_URL:
@@ -142,6 +145,20 @@ function genericJsonForm(meta: SourceMeta): HTMLElement {
         fieldRow('Author name JSON path', bindString(c, 'author-name-path')),
         fieldRow('Author URL JSON path', bindString(c, 'author-url-path')),
         fieldRow('Author URL prefix', bindString(c, 'author-url-prefix')),
+    );
+}
+
+function palaceMuseumForm(meta: SourceMeta): HTMLElement {
+    const c = meta.config;
+    return el(
+        'div',
+        {},
+        el('p', { class: 'muted' }, t('Palace Museum source note')),
+        fieldRow(t('Page URL'), bindString(c, 'page-url', 'https://www.dpm.org.cn/lights/royal.html')),
+        fieldRow(t('Category ID'), bindNumber(c, 'category-id', 624)),
+        fieldRow(t('Max detail pages to scan'), bindNumber(c, 'max-detail-pages', 12)),
+        fieldRow(t('Custom image regex (optional)'), bindString(c, 'image-regex')),
+        fieldRow(t('Author name'), bindString(c, 'author-name', '故宫博物院')),
     );
 }
 

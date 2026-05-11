@@ -3,6 +3,7 @@
 import { BaseAdapter } from './baseAdapter.js';
 import { GenericJsonAdapter } from './genericJson.js';
 import { LocalFolderAdapter } from './localFolder.js';
+import { PalaceMuseumAdapter } from './palaceMuseum.js';
 import { RedditAdapter } from './reddit.js';
 import { UnsplashAdapter } from './unsplash.js';
 import { UrlSourceAdapter } from './urlSource.js';
@@ -23,6 +24,8 @@ export function createAdapter(meta: SourceMeta): BaseAdapter {
             return new UrlSourceAdapter(meta);
         case SourceType.LOCAL_FOLDER:
             return new LocalFolderAdapter(meta);
+        case SourceType.PALACE_MUSEUM:
+            return new PalaceMuseumAdapter(meta);
         default:
             // Sensible fallback: unknown type → empty Wallhaven query.
             return new WallhavenAdapter({ ...meta, type: SourceType.WALLHAVEN });

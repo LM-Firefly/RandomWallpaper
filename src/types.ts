@@ -9,6 +9,7 @@ export const enum SourceType {
     GENERIC_JSON = 3,
     LOCAL_FOLDER = 4,
     STATIC_URL = 5,
+    PALACE_MUSEUM = 6,
 }
 
 export const SOURCE_TYPE_LABEL: Record<number, string> = {
@@ -18,6 +19,7 @@ export const SOURCE_TYPE_LABEL: Record<number, string> = {
     [SourceType.GENERIC_JSON]: 'Generic JSON',
     [SourceType.LOCAL_FOLDER]: 'Local Folder',
     [SourceType.STATIC_URL]: 'Static URL',
+    [SourceType.PALACE_MUSEUM]: '故宫博物院',
 };
 
 export interface SourceMeta {
