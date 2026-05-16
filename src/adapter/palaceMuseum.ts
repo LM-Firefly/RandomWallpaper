@@ -21,12 +21,14 @@ import type { HistoryEntryData } from './../types.js';
 const DEFAULT_PAGE_URL = 'https://www.dpm.org.cn/lights/royal.html';
 const DEFAULT_MAX_DETAIL_PAGES = 12;
 const DEFAULT_CATEGORY_ID = 624;
+const DEFAULT_DESKTOP_4K_ONLY = true;
 const PAGE_SIZE = 24;
 
 interface PalaceMuseumConfig {
     'page-url'?: string;
     'category-id'?: number | string;
     'max-detail-pages'?: number;
+    'desktop-4k-only'?: boolean;
     'image-regex'?: string;
     'author-name'?: string;
     [key: string]: unknown;
@@ -42,12 +44,19 @@ export class PalaceMuseumAdapter extends BaseAdapter<PalaceMuseumConfig> {
         const cfg = this._config;
         const pageUrl = String(cfg['page-url'] ?? DEFAULT_PAGE_URL).trim() || DEFAULT_PAGE_URL;
         const categoryId = this._toPositiveInt(cfg['category-id'], DEFAULT_CATEGORY_ID);
+        const desktop4kOnly = this._toBool(cfg['desktop-4k-only'], DEFAULT_DESKTOP_4K_ONLY);
         const searchEndpoint = this._deriveSearchEndpoint(pageUrl);
 
         // Step 1: probe page 1 to learn total pages.
         let totalPages = 1;
         try {
-            const firstPage = await this._fetchListPage(searchEndpoint, pageUrl, categoryId, 1);
+            const firstPage = await this._fetchListPage(
+                searchEndpoint,
+                pageUrl,
+                categoryId,
+                1,
+                desktop4kOnly,
+            );
             totalPages = this._extractTotalPages(firstPage) || 1;
         } catch (err) {
             Logger.error(`Palace Museum probe fetch failed: ${String(err)}`, this);
@@ -64,7 +73,13 @@ export class PalaceMuseumAdapter extends BaseAdapter<PalaceMuseumConfig> {
         const pagesToTry = randomPage === 1 ? [1] : [randomPage, 1];
         for (const p of pagesToTry) {
             try {
-                const html = await this._fetchListPage(searchEndpoint, pageUrl, categoryId, p);
+                const html = await this._fetchListPage(
+                    searchEndpoint,
+                    pageUrl,
+                    categoryId,
+                    p,
+                    desktop4kOnly,
+                );
                 for (const url of this._extractDetailPageUrls(html, pageUrl)) {
                     detailUrls.add(url);
                 }
@@ -163,9 +178,21 @@ export class PalaceMuseumAdapter extends BaseAdapter<PalaceMuseumConfig> {
         referer: string,
         categoryId: number,
         page: number,
+        desktop4kOnly: boolean,
     ): Promise<string> {
         const sep = endpoint.includes('?') ? '&' : '?';
-        const url = `${endpoint}${sep}category_id=${categoryId}&p=${page}&pagesize=${PAGE_SIZE}&_=${Date.now()}`;
+        const query = new URLSearchParams({
+            category_id: String(categoryId),
+            p: String(page),
+            pagesize: String(PAGE_SIZE),
+            _: String(Date.now()),
+        });
+        if (desktop4kOnly) {
+            query.set('is_pc', '1');
+            query.set('is_four_k', '1');
+            query.set('is_wap', '0');
+        }
+        const url = `${endpoint}${sep}${query.toString()}`;
         const req = this._bowl.newGetMessage(url, {
             'X-Requested-With': 'XMLHttpRequest',
             'Referer': referer,
@@ -280,5 +307,15 @@ export class PalaceMuseumAdapter extends BaseAdapter<PalaceMuseumConfig> {
         const n = Number(v);
         if (!Number.isFinite(n) || n <= 0) return fallback;
         return Math.floor(n);
+    }
+
+    private _toBool(v: unknown, fallback: boolean): boolean {
+        if (typeof v === 'boolean') return v;
+        if (typeof v === 'string') {
+            const s = v.trim().toLowerCase();
+            if (s === 'true' || s === '1' || s === 'yes' || s === 'on') return true;
+            if (s === 'false' || s === '0' || s === 'no' || s === 'off') return false;
+        }
+        return fallback;
     }
 }

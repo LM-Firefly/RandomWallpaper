@@ -58,6 +58,8 @@ const ZH_CN: Dict = {
     'Max linked scripts to scan': '最多扫描脚本数',
     'Max detail pages to scan': '最多扫描详情页数',
     'Category ID': '分类 ID',
+    'Use official website PC+4K filter': '使用官网 电脑+4K 筛选',
+    'Desktop 4K only (filter out mobile portrait wallpapers)': '仅电脑 4K（过滤手机竖屏壁纸）',
     'Custom image regex (optional)': '自定义图片正则（可选）',
     'Author name': '作者名称',
     'Palace Museum source note':
@@ -176,6 +178,8 @@ const DE: Dict = {
     'Max linked scripts to scan': 'Max. Anzahl gescannter Skripte',
     'Max detail pages to scan': 'Max. Anzahl Detailseiten',
     'Category ID': 'Kategorie-ID',
+    'Use official website PC+4K filter': 'Offiziellen Website-Filter PC+4K verwenden',
+    'Desktop 4K only (filter out mobile portrait wallpapers)': 'Nur Desktop-4K (mobile Hochformat-Wallpaper filtern)',
     'Custom image regex (optional)': 'Eigener Bild-RegEx (optional)',
     'Author name': 'Autorname',
     'Palace Museum source note':

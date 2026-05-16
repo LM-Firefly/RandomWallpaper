@@ -45,7 +45,7 @@ export async function renderSourcesTab(host: HTMLElement): Promise<void> {
             name: SOURCE_TYPE_LABEL[type] ?? 'Source',
             enabled: true,
             blockedImages: [],
-            config: {},
+            config: defaultConfigByType(type),
         };
         await upsertSource(meta);
         await renderSourcesTab(host);
@@ -144,4 +144,13 @@ function renderSourceCard(meta: SourceMeta, refresh: () => void): HTMLElement {
 
     card.append(header, form);
     return card;
+}
+
+function defaultConfigByType(type: SourceType): Record<string, unknown> {
+    switch (type) {
+        case SourceType.PALACE_MUSEUM:
+            return { 'desktop-4k-only': true };
+        default:
+            return {};
+    }
 }

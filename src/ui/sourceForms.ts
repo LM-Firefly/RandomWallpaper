@@ -160,6 +160,7 @@ function palaceMuseumForm(meta: SourceMeta): HTMLElement {
         'div',
         {},
         el('p', { class: 'muted' }, t('Palace Museum source note')),
+        fieldRow(t('Use official website PC+4K filter'), bindBool(c, 'desktop-4k-only', true)),
         fieldRow(t('Page URL'), bindString(c, 'page-url', 'https://www.dpm.org.cn/lights/royal.html')),
         fieldRow(t('Category ID'), bindNumber(c, 'category-id', 624)),
         fieldRow(t('Max detail pages to scan'), bindNumber(c, 'max-detail-pages', 12)),
